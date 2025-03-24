@@ -4,7 +4,7 @@ from src.database import get_db
 from src import models
 from src.services import query_gemini
 from src.image_utils import process_image, encode_image, decode_image, capture_image_from_camera
-from typing import Annotated, Any
+from typing import Annotated
 
 router = APIRouter()
 
@@ -15,9 +15,6 @@ async def create_query(
         image: Annotated[UploadFile, File()],
         db: Session = Depends(get_db)
 ):
-    """
-    Endpoint to send a question and an image to the Gemini API.
-    """
     image_data = await image.read()
     processed_image = process_image(image_data)
 
@@ -48,10 +45,7 @@ async def create_query(
 
 @router.get("/query/{query_id}")
 async def get_query(query_id: int, db: Session = Depends(get_db)):
-    """
-    Endpoint to get a query and its response by ID.
-    """
-    db_query_response = db.query(models.QueryResponse).filter(models.QueryResponse.id == query_id).first()
+    db_query_response = db.get(models.QueryResponse, query_id)
     if db_query_response is None:
         raise HTTPException(status_code=404, detail="Query not found")
     return {
@@ -64,10 +58,7 @@ async def get_query(query_id: int, db: Session = Depends(get_db)):
 
 @router.get("/image/{query_id}")
 async def get_image(query_id: int, db: Session = Depends(get_db)):
-    """
-    Endpoint to get an image by query ID.
-    """
-    db_query_response = db.query(models.QueryResponse).filter(models.QueryResponse.id == query_id).first()
+    db_query_response = db.get(models.QueryResponse, query_id)
     if db_query_response is None:
         raise HTTPException(status_code=404, detail="Query not found")
 
@@ -76,7 +67,6 @@ async def get_image(query_id: int, db: Session = Depends(get_db)):
 
 @router.post("/capture/", response_class=Response)
 async def capture_image():
-    """API для захвата изображения с камеры."""
     image_data = capture_image_from_camera()
     if image_data is None:
         raise HTTPException(status_code=500, detail="Ошибка при захвате изображения")

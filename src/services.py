@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 
 gemini_api_key = os.getenv("GOOGLE_API_KEY")
 if not gemini_api_key:
-    raise ValueError("GOOGLE_API_KEY environment variable not set.")
+    raise ValueError("GOOGLE_API_KEY не установлен в файле .env")
 
 genai.configure(api_key=gemini_api_key)
 
@@ -18,11 +18,10 @@ model = genai.GenerativeModel(model_name)
 
 
 def query_gemini(image_data, question):
-    """Sends a query to the Gemini API."""
     try:
         response = model.generate_content(
             [
-                "You are a helpful assistant that can see images and answer questions about them.",
+                "Ответить на вопрос",
                 image_data,
                 question
             ],
@@ -30,5 +29,5 @@ def query_gemini(image_data, question):
         )
         return response.text
     except Exception as e:
-        logging.error(f"Error querying Gemini API: {e}")
+        logging.error(f"Ошибка вызова gemini API: {e}")
         return None
