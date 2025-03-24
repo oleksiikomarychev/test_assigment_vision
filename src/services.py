@@ -1,5 +1,7 @@
+from io import BytesIO
 import google.generativeai as genai
 import os
+from PIL import Image
 from dotenv import load_dotenv
 import logging
 
@@ -19,6 +21,9 @@ model = genai.GenerativeModel(model_name)
 
 def query_gemini(image_data, question):
     try:
+        if not isinstance(image_data, Image.Image):
+            image_data = Image.open(BytesIO(image_data))
+
         response = model.generate_content(
             [
                 "Ответить на вопрос",
@@ -29,5 +34,5 @@ def query_gemini(image_data, question):
         )
         return response.text
     except Exception as e:
-        logging.error(f"Ошибка вызова gemini API: {e}")
+        logging.error(f"Ошибка вызова Gemini API: {e}")
         return None
